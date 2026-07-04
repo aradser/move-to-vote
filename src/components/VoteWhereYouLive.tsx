@@ -72,7 +72,9 @@ const THEMES: Record<ThemeKey, Theme> = {
 type Copy = {
   barLabel: string;
   kicker: string;
-  h1a: string;
+  h1aStatic: string;
+  // Rotating tail of the headline question: "עברתם [דירה? / לתל אביב? / …]"
+  h1aRotating: string[];
   h1b: string;
   sub: string;
   cta: string;
@@ -97,7 +99,8 @@ const T: Record<LocaleKey, Copy> = {
   he: {
     barLabel: "פנקס הבוחרים נסגר בעוד",
     kicker: "בחירות לכנסת · 27.10.2026",
-    h1a: "עברתם דירה?",
+    h1aStatic: "עברתם",
+    h1aRotating: ["דירה?", "לתל אביב?", "לבאר שבע?", "לכפר סבא?", "בית?"],
     h1b: "הקלפי לא עברה איתכם.",
     sub: "בישראל מצביעים רק לפי הכתובת שבתעודת הזהות. עדכון הכתובת הוא חינם, אונליין, וכחמש דקות — אבל רק עד סגירת הפנקס.",
     cta: "עדכנו כתובת עכשיו",
@@ -128,7 +131,8 @@ const T: Record<LocaleKey, Copy> = {
   ar: {
     barLabel: "سجلّ الناخبين يُغلق بعد",
     kicker: "انتخابات الكنيست · 27.10.2026",
-    h1a: "انتقلتم لبيت جديد؟",
+    h1aStatic: "انتقلتم",
+    h1aRotating: ["لبيت جديد؟", "إلى تل أبيب؟", "إلى بئر السبع؟", "إلى كفار سابا؟"],
     h1b: "صندوق الاقتراع لم ينتقل معكم.",
     sub: "في إسرائيل نصوّت فقط حسب العنوان في بطاقة الهوية. تحديث العنوان مجاني، عبر الإنترنت، ونحو خمس دقائق — لكن فقط حتى إغلاق السجلّ.",
     cta: "حدّثوا العنوان الآن",
@@ -159,7 +163,8 @@ const T: Record<LocaleKey, Copy> = {
   ru: {
     barLabel: "Реестр избирателей закроется через",
     kicker: "Выборы в Кнессет · 27.10.2026",
-    h1a: "Переехали?",
+    h1aStatic: "Переехали",
+    h1aRotating: ["в новую квартиру?", "в Тель-Авив?", "в Беэр-Шеву?", "в Кфар-Сабу?"],
     h1b: "Ваш участок — нет.",
     sub: "В Израиле голосуют только по адресу в теудат-зеут. Обновление — бесплатно, онлайн, около пяти минут. Но только до закрытия реестра.",
     cta: "Обновить адрес сейчас",
@@ -190,7 +195,8 @@ const T: Record<LocaleKey, Copy> = {
   en: {
     barLabel: "Voter registry closes in",
     kicker: "Knesset elections · 27.10.2026",
-    h1a: "You moved.",
+    h1aStatic: "You moved",
+    h1aRotating: ["apartments.", "to Tel Aviv.", "to Be'er Sheva.", "to Kfar Saba."],
     h1b: "Your polling station didn't.",
     sub: "In Israel you vote only where your ID says you live. Updating your address is free, online, and about five minutes — but only until the registry closes.",
     cta: "Update your address now",
@@ -265,6 +271,29 @@ const fmtDate = (iso: string, tag: string) =>
   new Date(iso).toLocaleDateString(tag, { day: "numeric", month: "long", year: "numeric" });
 
 /* ================= PRESENTATIONAL ================= */
+const WORD_ROTATE_MS = 2000;
+
+// Cycles through the headline's rotating words. Remounting the span via the
+// key replays the wordSwap entrance animation on every change (globals.css
+// disables it under prefers-reduced-motion).
+function RotatingWord({ words }: { words: string[] }) {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIndex((v) => v + 1), WORD_ROTATE_MS);
+    return () => clearInterval(id);
+  }, [words]);
+  const word = words[index % words.length];
+  return (
+    <span
+      key={word}
+      className="inline-block whitespace-nowrap"
+      style={{ animation: "wordSwap 0.35s cubic-bezier(0.22, 1, 0.36, 1) both" }}
+    >
+      {word}
+    </span>
+  );
+}
+
 function CTA({ big, t, dir }: { big?: boolean; t: Copy; dir: "rtl" | "ltr" }) {
   return (
     <a
@@ -382,7 +411,7 @@ export default function VoteWhereYouLive() {
           />
 
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight">
-            {t.h1a}
+            {t.h1aStatic} <RotatingWord words={t.h1aRotating} />
             <br />
             <span className="text-blue-700">{t.h1b}</span>
           </h1>
