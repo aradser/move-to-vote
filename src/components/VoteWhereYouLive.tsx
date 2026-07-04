@@ -8,6 +8,9 @@ const CONFIG = {
   electionDate: "2026-10-27T07:00:00+03:00",
   registryCloseDate: "2026-09-08T23:59:00+03:00", // estimate, ~50 days before election
   govService: "https://www.gov.il/he/service/changing_address",
+  // Central Elections Committee — the per-election polling-station locator
+  // (kalpi.bechirot.gov.il) only goes live near election day.
+  pollingLocator: "https://www.bechirot.gov.il/",
 };
 
 /* ================= I18N ================= */
@@ -78,9 +81,9 @@ type Copy = {
   facts: [string, string][];
   perksTitle: string;
   perks: string[];
-  edge: string;
   faqTitle: string;
-  faq: [string, string][];
+  // [question, answer, optional label for the polling-locator link]
+  faq: [string, string, string?][];
   honesty: string;
   finalTitle: string;
   foot: string;
@@ -107,13 +110,15 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "וזה שווה הרבה מעבר לבחירות",
     perks: ["תו חניה אזורי", "הנחות בארנונה", "רישום לגנים ובתי ספר", "חופים ובריכות לתושבים", "דואר רשמי שמגיע אליכם"],
-    edge: "עוברים ליישוב קטן, לאילת או לכתובת של אדם אחר? נדרשת הגעה ללשכה — הפרטים בעמוד השירות.",
     faqTitle: "שאלות נפוצות",
     faq: [
-      ["מי צריך לעדכן כתובת?", "כל מי שעבר דירה, גם בתוך אותה עיר — הקלפי נקבעת לפי הכתובת הרשומה, לא לפי מקום המגורים בפועל."],
-      ["זה באמת חינם?", "כן. העדכון מתבצע באתר gov.il הרשמי ואינו כרוך בתשלום."],
-      ["הצבעתי בעבר מהכתובת הישנה, זה משנה משהו?", "לא. בכל מערכת בחירות הקלפי נקבעת לפי הכתובת הרשומה ביום סגירת הפנקס."],
-      ["מה קורה אם הפנקס נסגר לפני שהספקתי לעדכן?", "תצביעו בקלפי המשויכת לכתובת הישנה. לכן כדאי לעדכן מוקדם ולא לחכות לרגע האחרון."],
+      ["מי צריך לעדכן כתובת?", "כל מי שעבר דירה — גם בתוך אותה עיר, וגם בשכירות, בדירת שותפים או אצל ההורים. הקלפי נקבעת לפי הכתובת הרשומה בתעודת הזהות, ובעלות על הדירה לא קשורה לעניין."],
+      ["מה צריך כדי לעדכן, וכמה זה עולה?", "רק הזדהות ממשלתית באתר gov.il והצהרה על הכתובת החדשה — חינם, אונליין, כחמש דקות. ספח מעודכן יישלח אליכם בדואר, ואין צורך להוציא תעודת זהות חדשה."],
+      ["מה קורה אם לא אעדכן לפני סגירת הפנקס?", "תוכלו להצביע רק בקלפי שליד הכתובת הישנה. בישראל אין הצבעה בדואר ואי אפשר להצביע מקלפי אחרת — וכשהדרך רחוקה, רבים פשוט מוותרים."],
+      ["מתי בדיוק נסגר פנקס הבוחרים?", "המועד המשוער הוא {DATE} — כחמישים יום לפני הבחירות. את המועד הרשמי תקבע ועדת הבחירות המרכזית, אז עדיף לא לחכות לרגע האחרון."],
+      ["עוברים ליישוב קטן, לאילת או לכתובת של אדם אחר?", "במקרים האלה אי אפשר לעדכן אונליין ונדרשת הגעה ללשכת רשות האוכלוסין — כל הפרטים בעמוד השירות הממשלתי."],
+      ["אפשר להירשם אצל חבר כדי להצביע בעיר אחרת?", "לא. מעדכנים רק כתובת שבה גרים בפועל — רישום פיקטיבי הוא עבירה פלילית."],
+      ["איך אדע איפה הקלפי שלי?", "לקראת הבחירות תישלח אליכם הודעה לבוחר, ואפשר גם לאתר את הקלפי לפי מספר תעודת הזהות באתר ועדת הבחירות המרכזית.", "לאיתור הקלפי שלכם"],
     ],
     honesty: "מעדכנים רק לכתובת שבה אתם באמת גרים. רישום פיקטיבי הוא עבירה פלילית.",
     finalTitle: "חמש דקות היום. קלפי ליד הבית באוקטובר.",
@@ -136,13 +141,15 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "وقيمته تتجاوز الانتخابات بكثير",
     perks: ["تصريح مواقف للسكان", "تخفيضات الأرنونا", "تسجيل روضات ومدارس", "شواطئ وبرك للسكان", "بريد رسمي يصلكم"],
-    edge: "تنتقلون إلى بلدة صغيرة أو إيلات أو عنوان شخص آخر؟ يلزم الحضور إلى المكتب — التفاصيل في صفحة الخدمة.",
     faqTitle: "أسئلة شائعة",
     faq: [
-      ["من يحتاج لتحديث العنوان؟", "كل من انتقل، حتى داخل نفس المدينة — يُحدَّد صندوق الاقتراع حسب العنوان المسجَّل، لا حسب مكان السكن الفعلي."],
-      ["هل هو مجاني فعلاً؟", "نعم. يتم التحديث عبر موقع gov.il الرسمي ولا يتطلب أي دفع."],
-      ["صوّتُ سابقًا من العنوان القديم، هل يغيّر ذلك شيئًا؟", "لا. في كل دورة انتخابية يُحدَّد الصندوق حسب العنوان المسجَّل عند إغلاق السجلّ."],
-      ["ماذا يحدث إذا أُغلق السجلّ قبل أن أحدّث بياناتي؟", "ستصوّتون في الصندوق المرتبط بعنوانكم القديم، لذا يُفضَّل التحديث مبكرًا وعدم الانتظار للحظة الأخيرة."],
+      ["من يحتاج إلى تحديث العنوان؟", "كل من انتقل إلى سكن جديد — حتى داخل المدينة نفسها، وكذلك المستأجرون والساكنون في شقة مشتركة أو عند الأهل. صندوق الاقتراع يُحدَّد حسب العنوان المسجَّل في بطاقة الهوية، ولا علاقة للأمر بملكية الشقة."],
+      ["ماذا يلزم للتحديث، وكم يكلّف؟", "فقط تسجيل دخول حكومي في موقع gov.il وتصريح عن العنوان الجديد — مجانًا، عبر الإنترنت، ونحو خمس دقائق. الملحق المحدَّث يصلكم بالبريد، ولا حاجة لإصدار بطاقة هوية جديدة."],
+      ["ماذا يحدث إذا لم أحدّث قبل إغلاق السجلّ؟", "ستتمكنون من التصويت فقط في الصندوق قرب العنوان القديم. في إسرائيل لا يوجد تصويت بالبريد ولا يمكن التصويت من صندوق آخر — وحين تكون المسافة بعيدة، كثيرون يتنازلون ببساطة."],
+      ["متى يُغلق سجلّ الناخبين بالضبط؟", "الموعد التقديري هو {DATE} — نحو خمسين يومًا قبل الانتخابات. الموعد الرسمي تحدّده لجنة الانتخابات المركزية، لذا يُفضَّل عدم الانتظار حتى اللحظة الأخيرة."],
+      ["تنتقلون إلى بلدة صغيرة، إيلات أو عنوان شخص آخر؟", "في هذه الحالات لا يمكن التحديث عبر الإنترنت ويلزم الحضور شخصيًا إلى مكتب سلطة السكان — كل التفاصيل في صفحة الخدمة الحكومية."],
+      ["هل يمكن التسجيل عند صديق للتصويت في مدينة أخرى؟", "لا. حدّثوا فقط عنوان سكنكم الفعلي — التسجيل الوهمي مخالفة جنائية."],
+      ["كيف أعرف أين صندوق الاقتراع الخاص بي؟", "قبيل الانتخابات تصلكم بطاقة الناخب، ويمكن أيضًا تحديد موقع الصندوق حسب رقم الهوية في موقع لجنة الانتخابات المركزية.", "لتحديد موقع صندوقكم"],
     ],
     honesty: "حدّثوا فقط إلى عنوان سكنكم الفعلي. التسجيل الوهمي مخالفة جنائية.",
     finalTitle: "خمس دقائق اليوم. صندوق قرب البيت في أكتوبر.",
@@ -165,13 +172,15 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "И это даёт куда больше, чем выборы",
     perks: ["Парковочный талон жителя", "Скидки на арнону", "Запись в сады и школы", "Пляжи и бассейны для жителей", "Официальная почта доходит до вас"],
-    edge: "Переезжаете в маленький посёлок, Эйлат или на адрес другого человека? Нужен визит в лишку — детали на странице сервиса.",
     faqTitle: "Частые вопросы",
     faq: [
-      ["Кому нужно обновлять адрес?", "Всем, кто переехал, даже в пределах того же города — участок определяется по зарегистрированному адресу, а не по фактическому месту жительства."],
-      ["Это правда бесплатно?", "Да. Обновление происходит на официальном сайте gov.il и не требует оплаты."],
-      ["Я уже голосовал(а) по старому адресу раньше — это на что-то влияет?", "Нет. На каждых выборах участок определяется по адресу, актуальному на момент закрытия реестра."],
-      ["Что если реестр закроется раньше, чем я успею обновить адрес?", "Вы будете голосовать на участке по старому адресу — поэтому лучше обновить данные заранее, не откладывая на последний момент."],
+      ["Кому нужно обновлять адрес?", "Всем, кто переехал — даже в пределах того же города; съёмная квартира, квартира с соседями или жильё у родителей тоже считаются. Участок определяется по адресу, записанному в теудат-зеут, — право собственности значения не имеет."],
+      ["Что нужно для обновления и сколько это стоит?", "Только государственная идентификация на gov.il и декларация о новом адресе — бесплатно, онлайн, около пяти минут. Обновлённый вкладыш (сефах) придёт по почте; новый теудат-зеут не нужен."],
+      ["Что будет, если не обновить до закрытия реестра?", "Голосовать можно будет только на участке у старого адреса. В Израиле нет голосования по почте и нельзя проголосовать на другом участке — а когда ехать далеко, многие просто не голосуют."],
+      ["Когда именно закрывается реестр?", "Предварительная дата — {DATE}, примерно за пятьдесят дней до выборов. Официальную дату установит Центральная избирательная комиссия, так что лучше не откладывать на последний момент."],
+      ["Переезжаете в маленький посёлок, Эйлат или на адрес другого человека?", "В этих случаях онлайн-обновление недоступно — нужен личный визит в бюро Управления регистрации населения. Подробности на странице сервиса."],
+      ["Можно зарегистрироваться у друга, чтобы голосовать в другом городе?", "Нет. Указывать можно только адрес, где вы реально живёте, — фиктивная регистрация является уголовным преступлением."],
+      ["Как узнать, где мой участок?", "Перед выборами вам придёт уведомление избирателя, а найти свой участок по номеру теудат-зеут можно на сайте Центральной избирательной комиссии.", "Найти свой участок"],
     ],
     honesty: "Указывайте только адрес, где реально живёте. Фиктивная регистрация — уголовное преступление.",
     finalTitle: "Пять минут сегодня. Участок у дома в октябре.",
@@ -194,13 +203,15 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "Worth far more than election day",
     perks: ["Resident parking permit", "Arnona discounts", "Daycare & school registration", "Resident beaches & pools", "Official mail that reaches you"],
-    edge: "Moving to a small community, Eilat, or someone else's address? A bureau visit is required — details on the service page.",
     faqTitle: "Frequently asked questions",
     faq: [
-      ["Who needs to update their address?", "Anyone who's moved, even within the same city — your polling station is based on your registered address, not where you actually live."],
-      ["Is it really free?", "Yes. The update happens through the official gov.il site and costs nothing."],
-      ["I voted from my old address before — does that matter?", "No. Every election cycle, your polling station is set by whatever address is on file when the registry closes."],
-      ["What happens if the registry closes before I update?", "You'll vote at the station tied to your old address — so it's best to update early rather than wait until the last minute."],
+      ["Who needs to update their address?", "Anyone who's moved — even within the same city, and renters, flatshares, or living at your parents' place all count. Your polling station follows the address registered on your ID; owning the apartment has nothing to do with it."],
+      ["What do I need, and what does it cost?", "Just a government login on gov.il and a declaration of your new address — free, online, about five minutes. An updated ID appendix arrives by mail; no new ID card needed."],
+      ["What happens if I don't update before the registry closes?", "You'll only be able to vote at the station near your old address. Israel has no mail-in voting and no vote-anywhere option — and when it's a long trip, many people simply skip it."],
+      ["When exactly does the registry close?", "The estimated date is {DATE} — about fifty days before the election. The official date is set by the Central Elections Committee, so don't wait until the last minute."],
+      ["Moving to a small community, Eilat, or someone else's address?", "These cases can't be done online — they require visiting a Population Authority bureau in person. Full details on the government service page."],
+      ["Can I register at a friend's place to vote in another city?", "No. Register only where you actually live — a fictitious address is a criminal offense."],
+      ["How will I know where my polling station is?", "A voter notice is sent before the election, and you can also look up your station by ID number on the Central Elections Committee website.", "Find your polling station"],
     ],
     honesty: "Register only where you actually live. A fictitious address is a criminal offense.",
     finalTitle: "Five minutes today. A polling station near home in October.",
@@ -406,7 +417,6 @@ export default function VoteWhereYouLive() {
               </span>
             ))}
           </div>
-          <p className="mt-8 text-sm text-zinc-500 max-w-lg mx-auto">{t.edge}</p>
         </section>
 
         {/* ===== FAQ ===== */}
@@ -414,13 +424,24 @@ export default function VoteWhereYouLive() {
           <div className="max-w-2xl mx-auto px-5 py-14">
             <h2 className="text-xl sm:text-2xl font-black mb-6 text-center">{t.faqTitle}</h2>
             <div className="flex flex-col gap-3">
-              {t.faq.map(([q, a], i) => (
+              {t.faq.map(([q, a, locatorLabel], i) => (
                 <details key={i} className="group rounded-xl border border-zinc-200 bg-white px-5 py-4 open:pb-4">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-zinc-900 marker:content-none">
                     {q}
                     <span className="shrink-0 transition-transform group-open:rotate-45 text-xl leading-none" aria-hidden="true">+</span>
                   </summary>
-                  <p className="mt-3 text-zinc-600 leading-relaxed">{a}</p>
+                  <p className="mt-3 text-zinc-600 leading-relaxed">{a.replace("{DATE}", closeDate)}</p>
+                  {locatorLabel && (
+                    <a
+                      href={CONFIG.pollingLocator}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center gap-1.5 font-semibold text-blue-700 hover:underline"
+                    >
+                      {locatorLabel}
+                      <span aria-hidden="true">{dir === "rtl" ? "←" : "→"}</span>
+                    </a>
+                  )}
                 </details>
               ))}
             </div>
