@@ -134,7 +134,7 @@ const T: Record<LocaleKey, Copy> = {
     honesty: "מעדכנים רק לכתובת שבה אתם באמת גרים. רישום פיקטיבי הוא עבירה פלילית.",
     finalTitle: "חמש דקות היום. קלפי ליד הבית באוקטובר.",
     foot: "יוזמה אזרחית עצמאית · לא אתר ממשלתי · האתר לא אוסף שום פרט אישי",
-    days: "ימים", hrs: "שע׳", min: "דק׳", sec: "שנ׳",
+    days: "ימים", hrs: "שעות", min: "דקות", sec: "שניות",
     illustrationAlt: "מעברים דירה — הקלפי החדשה מחכה בכתובת החדשה",
   },
   ar: {
@@ -170,7 +170,7 @@ const T: Record<LocaleKey, Copy> = {
     honesty: "حدّثوا فقط إلى عنوان سكنكم الفعلي. التسجيل الوهمي مخالفة جنائية.",
     finalTitle: "خمس دقائق اليوم. صندوق قرب البيت في أكتوبر.",
     foot: "مبادرة مدنية مستقلة · ليس موقعًا حكوميًا · الموقع لا يجمع أي معلومات شخصية",
-    days: "أيام", hrs: "س", min: "د", sec: "ث",
+    days: "أيام", hrs: "ساعات", min: "دقائق", sec: "ثوانٍ",
     illustrationAlt: "الانتقال إلى منزل جديد — صندوق الاقتراع بانتظاركم في العنوان الجديد",
   },
   ru: {
@@ -206,7 +206,7 @@ const T: Record<LocaleKey, Copy> = {
     honesty: "Указывайте только адрес, где реально живёте. Фиктивная регистрация — уголовное преступление.",
     finalTitle: "Пять минут сегодня. Участок у дома в октябре.",
     foot: "Независимая гражданская инициатива · не государственный сайт · никаких личных данных",
-    days: "дн", hrs: "ч", min: "мин", sec: "сек",
+    days: "дней", hrs: "часов", min: "минут", sec: "секунд",
     illustrationAlt: "Переезд в новый дом — избирательный участок ждёт по новому адресу",
   },
   en: {
@@ -242,7 +242,7 @@ const T: Record<LocaleKey, Copy> = {
     honesty: "Register only where you actually live. A fictitious address is a criminal offense.",
     finalTitle: "Five minutes today. A polling station near home in October.",
     foot: "Independent civic initiative · not a government site · no personal data collected",
-    days: "days", hrs: "hrs", min: "min", sec: "sec",
+    days: "days", hrs: "hours", min: "minutes", sec: "seconds",
     illustrationAlt: "Moving to a new home — your polling station waits at the new address",
   },
 };
@@ -437,11 +437,11 @@ function CTA({ big, t, dir }: { big?: boolean; t: Copy; dir: "rtl" | "ltr" }) {
 
 function Unit({ n, l }: { n: number | null; l: string }) {
   return (
-    <span className="flex items-baseline gap-1">
-      <span className="tabular-nums font-black text-lg sm:text-xl" style={{ fontVariantNumeric: "tabular-nums" }}>
+    <span className="flex flex-col items-center min-w-[2.25rem]">
+      <span className="tabular-nums font-black text-lg sm:text-xl leading-none" style={{ fontVariantNumeric: "tabular-nums" }}>
         {n === null ? "--" : String(n).padStart(2, "0")}
       </span>
-      <span className="text-[10px] sm:text-xs opacity-60 font-semibold">{l}</span>
+      <span className="text-[9px] sm:text-[10px] opacity-60 font-semibold mt-0.5">{l}</span>
     </span>
   );
 }
@@ -488,13 +488,13 @@ export default function VoteWhereYouLive() {
             <span className={`h-2 w-2 rounded-full shrink-0 ${theme.barDot}`} style={{ animation: "pulseDot 1.6s ease-in-out infinite" }} aria-hidden="true" />
             <span className={`text-xs sm:text-sm font-semibold truncate ${theme.barSubText}`}>{t.barLabel}</span>
           </div>
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0 bg-white text-zinc-900 rounded-lg shadow-sm px-3 py-1.5">
+          <div dir="ltr" className="flex items-start gap-2 sm:gap-3 shrink-0 bg-white text-zinc-900 rounded-lg shadow-sm px-3 py-1.5">
             <Unit n={cd.d} l={t.days} />
-            <span className="opacity-30">:</span>
+            <span className="opacity-30 text-lg sm:text-xl font-black leading-none">:</span>
             <Unit n={cd.h} l={t.hrs} />
-            <span className="opacity-30">:</span>
+            <span className="opacity-30 text-lg sm:text-xl font-black leading-none">:</span>
             <Unit n={cd.m} l={t.min} />
-            <span className="opacity-30">:</span>
+            <span className="opacity-30 text-lg sm:text-xl font-black leading-none">:</span>
             <span className="text-red-600"><Unit n={cd.s} l={t.sec} /></span>
           </div>
           <select
