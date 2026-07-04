@@ -27,6 +27,8 @@ const PERK_ICONS = ["🅿️", "💳", "🏫", "🏖️", "📬"];
 // easy to miss) can be compared against higher-contrast alternatives.
 type ThemeKey = "classicBlue" | "signalRed" | "highVisAmber";
 
+// Theme only restyles the countdown bar — the rest of the page (accent
+// blue, CTA buttons, final section) stays fixed regardless of the toggle.
 type Theme = {
   label: string;
   barBg: string;
@@ -34,15 +36,6 @@ type Theme = {
   barSubText: string;
   barAccent: string;
   barDot: string;
-  kicker: string;
-  h1Accent: string;
-  ctaBg: string;
-  ctaText: string;
-  ctaShadow: string;
-  ring: string;
-  finalBg: string;
-  finalText: string;
-  finalSubText: string;
 };
 
 const THEMES: Record<ThemeKey, Theme> = {
@@ -53,15 +46,6 @@ const THEMES: Record<ThemeKey, Theme> = {
     barSubText: "text-zinc-300",
     barAccent: "text-red-400",
     barDot: "bg-red-500",
-    kicker: "text-blue-700",
-    h1Accent: "text-blue-700",
-    ctaBg: "bg-blue-700 hover:bg-blue-600",
-    ctaText: "text-white",
-    ctaShadow: "shadow-blue-700/30 hover:shadow-blue-600/40",
-    ring: "focus-visible:ring-blue-300",
-    finalBg: "bg-zinc-950",
-    finalText: "text-white",
-    finalSubText: "text-zinc-400",
   },
   signalRed: {
     label: "Signal Red",
@@ -70,15 +54,6 @@ const THEMES: Record<ThemeKey, Theme> = {
     barSubText: "text-red-100",
     barAccent: "text-yellow-200",
     barDot: "bg-yellow-300",
-    kicker: "text-red-600",
-    h1Accent: "text-red-600",
-    ctaBg: "bg-red-600 hover:bg-red-500",
-    ctaText: "text-white",
-    ctaShadow: "shadow-red-600/30 hover:shadow-red-500/40",
-    ring: "focus-visible:ring-red-300",
-    finalBg: "bg-red-950",
-    finalText: "text-white",
-    finalSubText: "text-red-200",
   },
   highVisAmber: {
     label: "High-Vis Amber",
@@ -87,15 +62,6 @@ const THEMES: Record<ThemeKey, Theme> = {
     barSubText: "text-zinc-800",
     barAccent: "text-red-700",
     barDot: "bg-red-700",
-    kicker: "text-amber-600",
-    h1Accent: "text-amber-600",
-    ctaBg: "bg-amber-400 hover:bg-amber-300",
-    ctaText: "text-zinc-950",
-    ctaShadow: "shadow-amber-400/40 hover:shadow-amber-300/50",
-    ring: "focus-visible:ring-amber-600",
-    finalBg: "bg-zinc-950",
-    finalText: "text-white",
-    finalSubText: "text-zinc-400",
   },
 };
 
@@ -287,7 +253,7 @@ const fmtDate = (iso: string, tag: string) =>
   new Date(iso).toLocaleDateString(tag, { day: "numeric", month: "long", year: "numeric" });
 
 /* ================= PRESENTATIONAL ================= */
-function CTA({ big, t, dir, theme }: { big?: boolean; t: Copy; dir: "rtl" | "ltr"; theme: Theme }) {
+function CTA({ big, t, dir }: { big?: boolean; t: Copy; dir: "rtl" | "ltr" }) {
   return (
     <a
       href={CONFIG.govService}
@@ -296,7 +262,7 @@ function CTA({ big, t, dir, theme }: { big?: boolean; t: Copy; dir: "rtl" | "ltr
       className="group inline-flex flex-col items-center gap-1"
     >
       <span
-        className={`inline-flex items-center gap-3 rounded-full font-black shadow-lg transition-all hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 ${theme.ctaBg} ${theme.ctaText} ${theme.ctaShadow} ${theme.ring} ${big ? "text-xl sm:text-2xl px-10 py-5" : "text-lg px-8 py-4"}`}
+        className={`inline-flex items-center gap-3 rounded-full bg-blue-700 text-white font-black shadow-lg shadow-blue-700/30 transition-all hover:bg-blue-600 hover:shadow-blue-600/40 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 ${big ? "text-xl sm:text-2xl px-10 py-5" : "text-lg px-8 py-4"}`}
       >
         {t.cta}
         <span aria-hidden="true" className={`transition-transform ${dir === "rtl" ? "group-hover:-translate-x-1" : "group-hover:translate-x-1"}`}>
@@ -330,12 +296,14 @@ export default function VoteWhereYouLive() {
   const closeDate = fmtDate(CONFIG.registryCloseDate, tag);
 
   useEffect(() => {
+    // Hebrew is the default for everyone (including English browsers);
+    // only Arabic or Russian browsers get switched automatically.
     const browserLang = navigator.language.slice(0, 2).toLowerCase();
-    if (browserLang in LOCALES) {
+    if (browserLang === "ar" || browserLang === "ru") {
       // One-time sync with the browser's language, which isn't known during
       // the server render, so it can only be read after mount.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLocale(browserLang as LocaleKey);
+      setLocale(browserLang);
     }
   }, []);
 
@@ -374,7 +342,13 @@ export default function VoteWhereYouLive() {
 
       {/* ===== HERO ===== */}
       <main>
-        <section className="max-w-3xl mx-auto px-5 pt-16 sm:pt-24 pb-14 text-center flex flex-col items-center gap-6">
+        <section className="max-w-3xl mx-auto px-5 pt-6 sm:pt-8 pb-14 text-center flex flex-col items-center gap-6">
+          <p
+            className="text-xs sm:text-sm font-bold tracking-widest uppercase text-blue-700 border border-blue-700 rounded px-2.5 py-1"
+          >
+            {t.kicker}
+          </p>
+
           <Image
             src="/images/move-to-vote.png"
             alt={t.illustrationAlt}
@@ -384,16 +358,15 @@ export default function VoteWhereYouLive() {
             className="w-full max-w-xl h-auto"
           />
 
-          <p className={`text-xs sm:text-sm font-bold tracking-widest uppercase ${theme.kicker}`}>{t.kicker}</p>
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight">
             {t.h1a}
             <br />
-            <span className={theme.h1Accent}>{t.h1b}</span>
+            <span className="text-blue-700">{t.h1b}</span>
           </h1>
           <p className="text-lg sm:text-xl text-zinc-600 max-w-xl leading-relaxed">{t.sub}</p>
 
           <div className="mt-2">
-            <CTA big t={t} dir={dir} theme={theme} />
+            <CTA big t={t} dir={dir} />
           </div>
         </section>
 
@@ -442,11 +415,11 @@ export default function VoteWhereYouLive() {
         </section>
 
         {/* ===== FINAL CTA ===== */}
-        <section className={`${theme.finalBg} ${theme.finalText}`}>
+        <section className="bg-zinc-950 text-white">
           <div className="max-w-3xl mx-auto px-5 py-16 text-center flex flex-col items-center gap-6">
             <h2 className="text-3xl sm:text-4xl font-black leading-tight">{t.finalTitle}</h2>
-            <p className={`font-medium ${theme.finalSubText}`}>⏳ {closeDate}</p>
-            <CTA big t={t} dir={dir} theme={theme} />
+            <p className="font-medium text-zinc-400">⏳ {closeDate}</p>
+            <CTA big t={t} dir={dir} />
           </div>
         </section>
       </main>
