@@ -315,26 +315,42 @@ function RotatingWord({ words }: { words: string[] }) {
   );
 }
 
-// Secondary CTA: native share sheet where the Web Share API exists (mobile),
-// otherwise toggles a row of social share links.
-function ShareButton({ t, variant = "light" }: { t: Copy; variant?: "light" | "dark" }) {
-  const [open, setOpen] = useState(false);
+// Brand icon paths (simple-icons, 24×24 viewBox).
+const ICON_PATHS = {
+  whatsapp:
+    "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z",
+  telegram:
+    "M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z",
+  facebook:
+    "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z",
+  x: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z",
+} as const;
+
+// Secondary CTA: always-visible share icons (WhatsApp first — it's the main
+// channel here), copy-link with inline feedback, and a native share-sheet
+// button that appears only on devices supporting the Web Share API.
+const subscribeNoop = () => () => {};
+
+function ShareRow({ t, variant = "light" }: { t: Copy; variant?: "light" | "dark" }) {
   const [copied, setCopied] = useState(false);
+  // false on the server and first client render, then the real capability.
+  const canNativeShare = useSyncExternalStore(
+    subscribeNoop,
+    () => !!navigator.share,
+    () => false
+  );
+
   const url = CONFIG.siteUrl;
   const text = t.shareText;
   const enc = encodeURIComponent;
+  const dark = variant === "dark";
 
-  async function handleClick() {
-    if (navigator.share) {
-      try {
-        await navigator.share({ text, url });
-      } catch {
-        // user closed the share sheet
-      }
-      return;
-    }
-    setOpen((v) => !v);
-  }
+  const networks: { name: string; href: string; color: string; path: string }[] = [
+    { name: "WhatsApp", href: `https://wa.me/?text=${enc(`${text} ${url}`)}`, color: "#25D366", path: ICON_PATHS.whatsapp },
+    { name: "Telegram", href: `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`, color: "#26A5E4", path: ICON_PATHS.telegram },
+    { name: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, color: "#1877F2", path: ICON_PATHS.facebook },
+    { name: "X", href: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`, color: dark ? "#ffffff" : "#0f0f0f", path: ICON_PATHS.x },
+  ];
 
   async function handleCopy() {
     await navigator.clipboard.writeText(`${text} ${url}`);
@@ -342,50 +358,58 @@ function ShareButton({ t, variant = "light" }: { t: Copy; variant?: "light" | "d
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const networks: [string, string][] = [
-    ["WhatsApp", `https://wa.me/?text=${enc(`${text} ${url}`)}`],
-    ["Telegram", `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`],
-    ["Facebook", `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`],
-    ["X", `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`],
-  ];
+  async function handleNativeShare() {
+    try {
+      await navigator.share({ text, url });
+    } catch {
+      // user closed the share sheet
+    }
+  }
 
-  const dark = variant === "dark";
-  const pill = dark
-    ? "border-white/25 text-zinc-300 hover:border-white hover:text-white"
-    : "border-zinc-200 bg-white text-zinc-700 hover:border-blue-700 hover:text-blue-700";
+  const circle = `flex h-11 w-11 items-center justify-center rounded-full border transition-all hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 ${
+    dark
+      ? "border-white/20 bg-white/10 hover:bg-white/20 focus-visible:ring-blue-400"
+      : "border-zinc-200 bg-white shadow-sm hover:shadow-md focus-visible:ring-blue-300"
+  }`;
+  const strokeIcon = dark ? "text-zinc-300" : "text-zinc-600";
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <button
-        onClick={handleClick}
-        aria-expanded={open}
-        className={`inline-flex items-center gap-2 rounded-full border-2 px-8 py-3.5 text-lg font-black transition-all hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 ${
-          dark
-            ? "border-white/40 text-white hover:border-white hover:bg-white/10 focus-visible:ring-blue-400"
-            : "border-blue-700 text-blue-700 hover:bg-blue-50 focus-visible:ring-blue-300"
-        }`}
-      >
-        <span aria-hidden="true">📣</span>
-        {t.shareCta}
-      </button>
-      {open && (
-        <div className="flex flex-wrap justify-center gap-2">
-          {networks.map(([name, href]) => (
-            <a
-              key={name}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${pill}`}
-            >
-              {name}
-            </a>
-          ))}
-          <button onClick={handleCopy} className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${pill}`}>
-            {copied ? t.copied : t.copyLink}
+      <span className={`text-sm font-bold ${dark ? "text-zinc-300" : "text-zinc-600"}`}>
+        <span aria-hidden="true">📣</span> {t.shareCta}
+      </span>
+      <div className="flex items-center gap-2.5" dir="ltr">
+        {networks.map((n) => (
+          <a key={n.name} href={n.href} target="_blank" rel="noopener noreferrer" aria-label={n.name} title={n.name} className={circle}>
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill={n.color} aria-hidden="true">
+              <path d={n.path} />
+            </svg>
+          </a>
+        ))}
+        <button onClick={handleCopy} aria-label={copied ? t.copied : t.copyLink} title={copied ? t.copied : t.copyLink} className={circle}>
+          {copied ? (
+            <svg viewBox="0 0 24 24" className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className={`h-5 w-5 ${strokeIcon}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.71" />
+            </svg>
+          )}
+        </button>
+        {canNativeShare && (
+          <button onClick={handleNativeShare} aria-label={t.shareCta} title={t.shareCta} className={circle}>
+            <svg viewBox="0 0 24 24" className={`h-5 w-5 ${strokeIcon}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="8.59" y1="10.49" x2="15.42" y2="6.51" />
+            </svg>
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -515,7 +539,7 @@ export default function VoteWhereYouLive() {
 
           <div className="mt-2 mb-4 flex flex-col items-center gap-4">
             <CTA big t={t} dir={dir} />
-            <ShareButton t={t} />
+            <ShareRow t={t} />
           </div>
         </section>
 
@@ -579,7 +603,7 @@ export default function VoteWhereYouLive() {
             <h2 className="text-3xl sm:text-4xl font-black leading-tight">{t.finalTitle}</h2>
             <p className="font-medium text-zinc-400">⏳ {closeDate}</p>
             <CTA big t={t} dir={dir} />
-            <ShareButton t={t} variant="dark" />
+            <ShareRow t={t} variant="dark" />
           </div>
         </section>
       </main>
