@@ -33,7 +33,8 @@ type Copy = {
   facts: [string, string][];
   perksTitle: string;
   perks: string[];
-  edge: string;
+  faqTitle: string;
+  faq: [string, string][];
   honesty: string;
   finalTitle: string;
   foot: string;
@@ -61,7 +62,16 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "וזה שווה הרבה מעבר לבחירות",
     perks: ["תו חניה אזורי", "הנחות בארנונה", "רישום לגנים ובתי ספר", "הטבות מס ביישובים מוטבים", "חופים ובריכות לתושבים", "דואר רשמי שמגיע אליכם"],
-    edge: "עוברים ליישוב קטן, לאילת או לכתובת של אדם אחר? נדרשת הגעה ללשכה — הפרטים בעמוד השירות.",
+    faqTitle: "שאלות נפוצות",
+    faq: [
+      ["אני בשכירות — זה בכלל רלוונטי אליי?", "בהחלט. הכתובת במרשם היא המקום שבו אתם גרים בפועל — דירה שכורה, דירת שותפים או אצל ההורים. אין שום קשר לבעלות על הדירה."],
+      ["מה צריך כדי לעדכן?", "רק הזדהות ממשלתית באתר gov.il והצהרה על הכתובת החדשה. חינם, אונליין, כחמש דקות. ספח מעודכן יישלח אליכם בדואר — אין צורך להוציא תעודת זהות חדשה."],
+      ["מה קורה אם לא אעדכן לפני סגירת הפנקס?", "תוכלו להצביע רק בקלפי שליד הכתובת הישנה. בישראל אין הצבעה בדואר ואי אפשר להצביע מקלפי אחרת — וכשהדרך רחוקה, רבים פשוט מוותרים."],
+      ["מתי בדיוק נסגר פנקס הבוחרים?", "המועד המשוער הוא {DATE} — כחמישים יום לפני הבחירות. את המועד הרשמי תקבע ועדת הבחירות המרכזית, אז עדיף לא לחכות לרגע האחרון."],
+      ["עוברים ליישוב קטן, לאילת או לכתובת של אדם אחר?", "במקרים האלה נדרשת הגעה פיזית ללשכת רשות האוכלוסין — כל הפרטים בעמוד השירות הממשלתי."],
+      ["אפשר להירשם אצל חבר כדי להצביע בעיר אחרת?", "לא. מעדכנים רק כתובת שבה גרים בפועל — רישום פיקטיבי הוא עבירה פלילית."],
+      ["איך אדע איפה הקלפי שלי?", "לקראת הבחירות תישלח אליכם הודעה לבוחר, ואפשר גם לאתר את הקלפי באתר ועדת הבחירות המרכזית לפי מספר תעודת הזהות."],
+    ],
     honesty: "מעדכנים רק לכתובת שבה אתם באמת גרים. רישום פיקטיבי הוא עבירה פלילית.",
     finalTitle: "חמש דקות היום. קלפי ליד הבית באוקטובר.",
     foot: "יוזמה אזרחית עצמאית · לא אתר ממשלתי · האתר לא אוסף שום פרט אישי",
@@ -84,7 +94,16 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "وقيمته تتجاوز الانتخابات بكثير",
     perks: ["تصريح مواقف للسكان", "تخفيضات الأرنونا", "تسجيل روضات ومدارس", "امتيازات ضريبية في بلدات مستفيدة", "شواطئ وبرك للسكان", "بريد رسمي يصلكم"],
-    edge: "تنتقلون إلى بلدة صغيرة أو إيلات أو عنوان شخص آخر؟ يلزم الحضور إلى المكتب — التفاصيل في صفحة الخدمة.",
+    faqTitle: "أسئلة شائعة",
+    faq: [
+      ["أنا مستأجر — هل هذا يخصّني أصلًا؟", "بالتأكيد. العنوان في السجلّ هو مكان سكنكم الفعلي — شقة مستأجرة، سكن مشترك أو عند الأهل. لا علاقة للأمر بملكية الشقة."],
+      ["ماذا يلزم للتحديث؟", "فقط تسجيل دخول حكومي في موقع gov.il وتصريح عن العنوان الجديد. مجانًا، عبر الإنترنت، ونحو خمس دقائق. الملحق المحدّث يصلكم بالبريد — لا حاجة لإصدار بطاقة هوية جديدة."],
+      ["ماذا يحدث إذا لم أحدّث قبل إغلاق السجلّ؟", "ستتمكنون من التصويت فقط في الصندوق قرب العنوان القديم. في إسرائيل لا يوجد تصويت بالبريد ولا يمكن التصويت من صندوق آخر — وحين تكون المسافة بعيدة، كثيرون يتنازلون ببساطة."],
+      ["متى يُغلق سجلّ الناخبين بالضبط؟", "الموعد التقديري هو {DATE} — نحو خمسين يومًا قبل الانتخابات. الموعد الرسمي تحدده لجنة الانتخابات المركزية، لذا يُفضَّل عدم الانتظار حتى اللحظة الأخيرة."],
+      ["تنتقلون إلى بلدة صغيرة، إيلات أو عنوان شخص آخر؟", "في هذه الحالات يلزم الحضور شخصيًا إلى مكتب سلطة السكان — كل التفاصيل في صفحة الخدمة الحكومية."],
+      ["هل يمكن التسجيل عند صديق للتصويت في مدينة أخرى؟", "لا. حدّثوا فقط عنوان سكنكم الفعلي — التسجيل الوهمي مخالفة جنائية."],
+      ["كيف أعرف أين صندوق الاقتراع الخاص بي؟", "قبيل الانتخابات تصلكم بطاقة الناخب، ويمكن أيضًا تحديد موقع الصندوق في موقع لجنة الانتخابات المركزية حسب رقم الهوية."],
+    ],
     honesty: "حدّثوا فقط إلى عنوان سكنكم الفعلي. التسجيل الوهمي مخالفة جنائية.",
     finalTitle: "خمس دقائق اليوم. صندوق قرب البيت في أكتوبر.",
     foot: "مبادرة مدنية مستقلة · ليس موقعًا حكوميًا · الموقع لا يجمع أي معلومات شخصية",
@@ -107,7 +126,16 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "И это даёт куда больше, чем выборы",
     perks: ["Парковочный талон жителя", "Скидки на арнону", "Запись в сады и школы", "Налоговые льготы в льготных городах", "Пляжи и бассейны для жителей", "Официальная почта доходит до вас"],
-    edge: "Переезжаете в маленький посёлок, Эйлат или на адрес другого человека? Нужен визит в лишку — детали на странице сервиса.",
+    faqTitle: "Частые вопросы",
+    faq: [
+      ["Я снимаю квартиру — это вообще про меня?", "Да. Адрес в реестре — это место, где вы фактически живёте: съёмная квартира, квартира с соседями или у родителей. Право собственности значения не имеет."],
+      ["Что нужно, чтобы обновить адрес?", "Только государственная идентификация на gov.il и декларация о новом адресе. Бесплатно, онлайн, около пяти минут. Обновлённый вкладыш (сефах) придёт по почте — новый теудат-зеут не нужен."],
+      ["Что будет, если не обновить до закрытия реестра?", "Голосовать можно будет только на участке у старого адреса. В Израиле нет голосования по почте и нельзя проголосовать на другом участке — а когда ехать далеко, многие просто не голосуют."],
+      ["Когда именно закрывается реестр?", "Предварительная дата — {DATE}, примерно за пятьдесят дней до выборов. Официальную дату установит Центральная избирательная комиссия, так что лучше не тянуть до последнего."],
+      ["Переезжаете в маленький посёлок, Эйлат или на адрес другого человека?", "В этих случаях нужен личный визит в лишку (бюро Управления регистрации населения) — подробности на странице сервиса."],
+      ["Можно зарегистрироваться у друга, чтобы голосовать в другом городе?", "Нет. Указывать можно только адрес, где вы реально живёте, — фиктивная регистрация является уголовным преступлением."],
+      ["Как узнать, где мой участок?", "Перед выборами вам придёт уведомление избирателя, а найти свой участок можно на сайте ЦИК по номеру теудат-зеут."],
+    ],
     honesty: "Указывайте только адрес, где реально живёте. Фиктивная регистрация — уголовное преступление.",
     finalTitle: "Пять минут сегодня. Участок у дома в октябре.",
     foot: "Независимая гражданская инициатива · не государственный сайт · никаких личных данных",
@@ -130,7 +158,16 @@ const T: Record<LocaleKey, Copy> = {
     ],
     perksTitle: "Worth far more than election day",
     perks: ["Resident parking permit", "Arnona discounts", "Daycare & school registration", "Tax credits in eligible towns", "Resident beaches & pools", "Official mail that reaches you"],
-    edge: "Moving to a small community, Eilat, or someone else's address? A bureau visit is required — details on the service page.",
+    faqTitle: "Common questions",
+    faq: [
+      ["I rent — does this even apply to me?", "Absolutely. Your registered address is simply where you actually live — a rental, a flatshare, or your parents' place. Owning the apartment has nothing to do with it."],
+      ["What do I need to update it?", "Just a government login on gov.il and a declaration of your new address. Free, online, about five minutes. An updated ID appendix arrives by mail — no new ID card needed."],
+      ["What happens if I don't update before the registry closes?", "You'll only be able to vote at the polling station near your old address. Israel has no mail-in voting and no vote-anywhere option — and when it's a long trip, many people simply skip it."],
+      ["When exactly does the registry close?", "The estimated date is {DATE} — about fifty days before the election. The official date is set by the Central Elections Committee, so don't wait until the last minute."],
+      ["Moving to a small community, Eilat, or someone else's address?", "These cases require visiting a Population Authority bureau in person — full details on the government service page."],
+      ["Can I register at a friend's place to vote in another city?", "No. Register only where you actually live — a fictitious address is a criminal offense."],
+      ["How will I know where my polling station is?", "A voter notice is sent before the election, and you can also look up your station on the Central Elections Committee website using your ID number."],
+    ],
     honesty: "Register only where you actually live. A fictitious address is a criminal offense.",
     finalTitle: "Five minutes today. A polling station near home in October.",
     foot: "Independent civic initiative · not a government site · no personal data collected",
@@ -321,7 +358,22 @@ export default function VoteWhereYouLive() {
               </span>
             ))}
           </div>
-          <p className="mt-8 text-sm text-zinc-500 max-w-lg mx-auto">{t.edge}</p>
+        </section>
+
+        {/* ===== FAQ ===== */}
+        <section className="max-w-2xl mx-auto px-5 pb-16">
+          <h2 className="text-xl sm:text-2xl font-black mb-6 text-center">{t.faqTitle}</h2>
+          <div className="divide-y divide-zinc-100 rounded-2xl border border-zinc-200 bg-white">
+            {t.faq.map(([q, a], i) => (
+              <details key={`${locale}-${i}`} className="group px-5">
+                <summary className="flex cursor-pointer items-center justify-between gap-4 py-4 font-bold list-none [&::-webkit-details-marker]:hidden">
+                  <span>{q}</span>
+                  <span aria-hidden="true" className="text-xl leading-none text-zinc-400 shrink-0 transition-transform group-open:rotate-45">+</span>
+                </summary>
+                <p className="pb-5 text-zinc-600 leading-relaxed">{a.replace("{DATE}", closeDate)}</p>
+              </details>
+            ))}
+          </div>
         </section>
 
         {/* ===== FINAL CTA ===== */}
