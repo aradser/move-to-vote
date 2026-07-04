@@ -39,17 +39,18 @@ type Theme = {
   barBg: string;
   barText: string;
   barSubText: string;
-  barAccent: string;
   barDot: string;
 };
 
+// The countdown numbers always sit in a white pill (readable against any bar
+// color), so themes only need to set the bar background, label color, and
+// pulsing dot.
 const THEMES: Record<ThemeKey, Theme> = {
   classicBlue: {
     label: "Classic Blue",
     barBg: "bg-zinc-950",
     barText: "text-white",
     barSubText: "text-zinc-300",
-    barAccent: "text-red-400",
     barDot: "bg-red-500",
   },
   signalRed: {
@@ -57,15 +58,13 @@ const THEMES: Record<ThemeKey, Theme> = {
     barBg: "bg-red-600",
     barText: "text-white",
     barSubText: "text-red-100",
-    barAccent: "text-yellow-200",
     barDot: "bg-yellow-300",
   },
   highVisAmber: {
     label: "High-Vis Amber",
-    barBg: "bg-amber-400",
+    barBg: "bg-amber-200",
     barText: "text-zinc-950",
-    barSubText: "text-zinc-800",
-    barAccent: "text-red-700",
+    barSubText: "text-zinc-900",
     barDot: "bg-red-700",
   },
 };
@@ -340,23 +339,23 @@ export default function VoteWhereYouLive() {
             <span className={`h-2 w-2 rounded-full shrink-0 ${theme.barDot}`} style={{ animation: "pulseDot 1.6s ease-in-out infinite" }} aria-hidden="true" />
             <span className={`text-xs sm:text-sm font-semibold truncate ${theme.barSubText}`}>{t.barLabel}</span>
           </div>
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0" dir="ltr">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0 bg-white text-zinc-900 rounded-lg shadow-sm px-3 py-1.5">
             <Unit n={cd.d} l={t.days} />
             <span className="opacity-30">:</span>
             <Unit n={cd.h} l={t.hrs} />
             <span className="opacity-30">:</span>
             <Unit n={cd.m} l={t.min} />
             <span className="opacity-30">:</span>
-            <span className={theme.barAccent}><Unit n={cd.s} l={t.sec} /></span>
+            <span className="text-red-600"><Unit n={cd.s} l={t.sec} /></span>
           </div>
           <select
             value={locale}
             onChange={(e) => handleLocaleChange(e.target.value as LocaleKey)}
             aria-label="Language"
-            className="bg-transparent border border-current/30 rounded px-2 py-1 text-xs sm:text-sm font-semibold shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-current"
+            className="bg-white text-zinc-900 rounded-full border border-zinc-200 shadow-sm px-3 py-1.5 text-xs sm:text-sm font-semibold shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             {Object.entries(LOCALES).map(([k, v]) => (
-              <option key={k} value={k} className="text-zinc-900">
+              <option key={k} value={k}>
                 {v.name}
               </option>
             ))}
@@ -389,7 +388,7 @@ export default function VoteWhereYouLive() {
           </h1>
           <p className="text-lg sm:text-xl text-zinc-600 max-w-xl leading-relaxed">{t.sub}</p>
 
-          <div className="mt-2">
+          <div className="mt-2 mb-4">
             <CTA big t={t} dir={dir} />
           </div>
         </section>
