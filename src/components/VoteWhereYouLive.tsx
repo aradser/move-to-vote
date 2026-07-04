@@ -11,6 +11,7 @@ const CONFIG = {
   // Central Elections Committee — the per-election polling-station locator
   // (kalpi.bechirot.gov.il) only goes live near election day.
   pollingLocator: "https://www.bechirot.gov.il/",
+  siteUrl: "https://move-to-vote.vercel.app/",
 };
 
 /* ================= I18N ================= */
@@ -79,6 +80,10 @@ type Copy = {
   sub: string;
   cta: string;
   ctaSub: string;
+  shareCta: string;
+  shareText: string;
+  copyLink: string;
+  copied: string;
   facts: [string, string][];
   perksTitle: string;
   perks: string[];
@@ -105,6 +110,10 @@ const T: Record<LocaleKey, Copy> = {
     sub: "בישראל מצביעים רק לפי הכתובת שבתעודת הזהות. עדכון הכתובת הוא חינם, אונליין, וכחמש דקות — אבל רק עד סגירת הפנקס.",
     cta: "עדכנו כתובת עכשיו",
     ctaSub: "חינם · באתר הממשלתי הרשמי · ~5 דקות",
+    shareCta: "הפיצו את הבשורה",
+    shareText: "עברתם דירה? הקלפי לא עברה איתכם. עדכון כתובת לוקח חמש דקות — ובאוקטובר מצביעים ליד הבית:",
+    copyLink: "העתקת קישור",
+    copied: "הועתק!",
     facts: [
       ["🗳️", "בלי עדכון — תצביעו בעיר הקודמת, או שלא תצביעו בכלל"],
       ["⚖️", "החוק ממילא מחייב עדכון תוך 30 יום ממעבר"],
@@ -137,6 +146,10 @@ const T: Record<LocaleKey, Copy> = {
     sub: "في إسرائيل نصوّت فقط حسب العنوان في بطاقة الهوية. تحديث العنوان مجاني، عبر الإنترنت، ونحو خمس دقائق — لكن فقط حتى إغلاق السجلّ.",
     cta: "حدّثوا العنوان الآن",
     ctaSub: "مجانًا · في الموقع الحكومي الرسمي · ~5 دقائق",
+    shareCta: "انشروا الخبر",
+    shareText: "انتقلتم لبيت جديد؟ صندوق الاقتراع لم ينتقل معكم. تحديث العنوان يستغرق خمس دقائق — وفي أكتوبر تصوّتون قرب البيت:",
+    copyLink: "نسخ الرابط",
+    copied: "تم النسخ!",
     facts: [
       ["🗳️", "بدون تحديث — تصوّتون في المدينة السابقة، أو لا تصوّتون إطلاقًا"],
       ["⚖️", "القانون يُلزم أصلًا بالتحديث خلال 30 يومًا من الانتقال"],
@@ -169,6 +182,10 @@ const T: Record<LocaleKey, Copy> = {
     sub: "В Израиле голосуют только по адресу в теудат-зеут. Обновление — бесплатно, онлайн, около пяти минут. Но только до закрытия реестра.",
     cta: "Обновить адрес сейчас",
     ctaSub: "Бесплатно · на официальном сайте · ~5 минут",
+    shareCta: "Расскажите друзьям",
+    shareText: "Переехали? Ваш участок — нет. Обновление адреса занимает пять минут — и в октябре вы голосуете рядом с домом:",
+    copyLink: "Скопировать ссылку",
+    copied: "Скопировано!",
     facts: [
       ["🗳️", "Без обновления — голосовать в старом городе или никак"],
       ["⚖️", "Закон и так требует обновить адрес за 30 дней после переезда"],
@@ -201,6 +218,10 @@ const T: Record<LocaleKey, Copy> = {
     sub: "In Israel you vote only where your ID says you live. Updating your address is free, online, and about five minutes — but only until the registry closes.",
     cta: "Update your address now",
     ctaSub: "Free · on the official gov site · ~5 min",
+    shareCta: "Spread the word",
+    shareText: "You moved — your polling station didn't. Updating your address takes five minutes, and in October you vote near home:",
+    copyLink: "Copy link",
+    copied: "Copied!",
     facts: [
       ["🗳️", "No update means voting in your old city — or not at all"],
       ["⚖️", "The law already requires updating within 30 days of moving"],
@@ -291,6 +312,81 @@ function RotatingWord({ words }: { words: string[] }) {
     >
       {word}
     </span>
+  );
+}
+
+// Secondary CTA: native share sheet where the Web Share API exists (mobile),
+// otherwise toggles a row of social share links.
+function ShareButton({ t, variant = "light" }: { t: Copy; variant?: "light" | "dark" }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const url = CONFIG.siteUrl;
+  const text = t.shareText;
+  const enc = encodeURIComponent;
+
+  async function handleClick() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ text, url });
+      } catch {
+        // user closed the share sheet
+      }
+      return;
+    }
+    setOpen((v) => !v);
+  }
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  const networks: [string, string][] = [
+    ["WhatsApp", `https://wa.me/?text=${enc(`${text} ${url}`)}`],
+    ["Telegram", `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`],
+    ["Facebook", `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`],
+    ["X", `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`],
+  ];
+
+  const dark = variant === "dark";
+  const pill = dark
+    ? "border-white/25 text-zinc-300 hover:border-white hover:text-white"
+    : "border-zinc-200 bg-white text-zinc-700 hover:border-blue-700 hover:text-blue-700";
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <button
+        onClick={handleClick}
+        aria-expanded={open}
+        className={`inline-flex items-center gap-2 rounded-full border-2 px-8 py-3.5 text-lg font-black transition-all hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 ${
+          dark
+            ? "border-white/40 text-white hover:border-white hover:bg-white/10 focus-visible:ring-blue-400"
+            : "border-blue-700 text-blue-700 hover:bg-blue-50 focus-visible:ring-blue-300"
+        }`}
+      >
+        <span aria-hidden="true">📣</span>
+        {t.shareCta}
+      </button>
+      {open && (
+        <div className="flex flex-wrap justify-center gap-2">
+          {networks.map(([name, href]) => (
+            <a
+              key={name}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${pill}`}
+            >
+              {name}
+            </a>
+          ))}
+          <button onClick={handleCopy} className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${pill}`}>
+            {copied ? t.copied : t.copyLink}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -417,8 +513,9 @@ export default function VoteWhereYouLive() {
           </h1>
           <p className="text-lg sm:text-xl text-zinc-600 max-w-xl leading-relaxed">{t.sub}</p>
 
-          <div className="mt-2 mb-4">
+          <div className="mt-2 mb-4 flex flex-col items-center gap-4">
             <CTA big t={t} dir={dir} />
+            <ShareButton t={t} />
           </div>
         </section>
 
@@ -482,6 +579,7 @@ export default function VoteWhereYouLive() {
             <h2 className="text-3xl sm:text-4xl font-black leading-tight">{t.finalTitle}</h2>
             <p className="font-medium text-zinc-400">⏳ {closeDate}</p>
             <CTA big t={t} dir={dir} />
+            <ShareButton t={t} variant="dark" />
           </div>
         </section>
       </main>
