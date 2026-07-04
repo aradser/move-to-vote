@@ -22,6 +22,8 @@ const LOCALES: Record<LocaleKey, { name: string; dir: "rtl" | "ltr"; tag: string
 
 const PERK_ICONS = ["🅿️", "💳", "🏫", "🏖️", "📬"];
 
+const LOCALE_STORAGE_KEY = "locale";
+
 /* ================= DESIGN OPTIONS ================= */
 // Temporary A/B/C toggle so the countdown bar (previously black-on-black and
 // easy to miss) can be compared against higher-contrast alternatives.
@@ -296,16 +298,27 @@ export default function VoteWhereYouLive() {
   const closeDate = fmtDate(CONFIG.registryCloseDate, tag);
 
   useEffect(() => {
-    // Hebrew is the default for everyone (including English browsers);
-    // only Arabic or Russian browsers get switched automatically.
+    // A manually picked language (stored on change) always wins. Otherwise,
+    // Hebrew is the default for everyone (including English browsers); only
+    // Arabic or Russian browsers get switched automatically.
+    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (stored && stored in LOCALES) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLocale(stored as LocaleKey);
+      return;
+    }
     const browserLang = navigator.language.slice(0, 2).toLowerCase();
     if (browserLang === "ar" || browserLang === "ru") {
       // One-time sync with the browser's language, which isn't known during
       // the server render, so it can only be read after mount.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocale(browserLang);
     }
   }, []);
+
+  function handleLocaleChange(next: LocaleKey) {
+    setLocale(next);
+    localStorage.setItem(LOCALE_STORAGE_KEY, next);
+  }
 
   return (
     <div dir={dir} lang={locale} className="min-h-screen bg-white text-zinc-900 antialiased flex-1">
@@ -327,7 +340,7 @@ export default function VoteWhereYouLive() {
           </div>
           <select
             value={locale}
-            onChange={(e) => setLocale(e.target.value as LocaleKey)}
+            onChange={(e) => handleLocaleChange(e.target.value as LocaleKey)}
             aria-label="Language"
             className="bg-transparent border border-current/30 rounded px-2 py-1 text-xs sm:text-sm font-semibold shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-current"
           >
