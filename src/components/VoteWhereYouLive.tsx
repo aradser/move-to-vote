@@ -286,10 +286,10 @@ export default function VoteWhereYouLive() {
           <p className="text-lg sm:text-xl text-zinc-600 max-w-xl leading-relaxed">{t.sub}</p>
 
           <Image
-            src="/images/move-to-vote.svg"
+            src="/images/move-to-vote.png"
             alt={t.illustrationAlt}
-            width={2000}
-            height={646}
+            width={2172}
+            height={724}
             priority
             className="w-full max-w-xl h-auto mt-2"
           />
