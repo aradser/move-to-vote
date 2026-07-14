@@ -459,8 +459,9 @@ export default function VoteWhereYouLive() {
 
   return (
     <div dir={dir} lang={locale} className="min-h-screen bg-white text-zinc-900 antialiased flex-1">
-      {/* ===== LANGUAGE ===== */}
-      <div className="max-w-5xl mx-auto px-4 pt-3 flex justify-end">
+      {/* ===== TOP BAR: kicker + language ===== */}
+      <div className="max-w-5xl mx-auto px-4 pt-3 flex items-center justify-between gap-3">
+        <p className="text-xs sm:text-sm font-bold tracking-widest uppercase text-blue-700">{t.kicker}</p>
         <div className="relative">
           <svg viewBox="0 0 24 24" className="pointer-events-none absolute top-1/2 -translate-y-1/2 start-2.5 h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
@@ -471,7 +472,7 @@ export default function VoteWhereYouLive() {
             value={locale}
             onChange={(e) => handleLocaleChange(e.target.value as LocaleKey)}
             aria-label="Language"
-            className="bg-white text-zinc-700 rounded-full border border-zinc-200 shadow-sm ps-8 pe-3 py-1.5 text-xs sm:text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="bg-white text-zinc-700 rounded-full ps-8 pe-3 py-1.5 text-xs sm:text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             {Object.entries(LOCALES).map(([k, v]) => (
               <option key={k} value={k}>
@@ -486,11 +487,6 @@ export default function VoteWhereYouLive() {
       <main>
         <section className="max-w-3xl mx-auto px-5 pt-2 sm:pt-4 pb-14 text-center flex flex-col items-center gap-6">
           <CountdownBlock t={t} cd={cd} />
-          <p
-            className="text-xs sm:text-sm font-bold tracking-widest uppercase text-blue-700 border border-blue-700 rounded px-2.5 py-1"
-          >
-            {t.kicker}
-          </p>
 
           <Image
             src="/images/move-to-vote.png"
