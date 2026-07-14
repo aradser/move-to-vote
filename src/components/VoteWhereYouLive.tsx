@@ -28,48 +28,6 @@ const PERK_ICONS = ["🅿️", "💳", "🏫", "🏖️", "📬"];
 
 const LOCALE_STORAGE_KEY = "locale";
 
-/* ================= DESIGN OPTIONS ================= */
-// Temporary A/B/C toggle so the countdown bar (previously black-on-black and
-// easy to miss) can be compared against higher-contrast alternatives.
-type ThemeKey = "classicBlue" | "signalRed" | "highVisAmber";
-
-// Theme only restyles the countdown bar — the rest of the page (accent
-// blue, CTA buttons, final section) stays fixed regardless of the toggle.
-type Theme = {
-  label: string;
-  barBg: string;
-  barText: string;
-  barSubText: string;
-  barDot: string;
-};
-
-// The countdown numbers always sit in a white pill (readable against any bar
-// color), so themes only need to set the bar background, label color, and
-// pulsing dot.
-const THEMES: Record<ThemeKey, Theme> = {
-  classicBlue: {
-    label: "Classic Blue",
-    barBg: "bg-zinc-950",
-    barText: "text-white",
-    barSubText: "text-zinc-300",
-    barDot: "bg-red-500",
-  },
-  signalRed: {
-    label: "Signal Red",
-    barBg: "bg-red-600",
-    barText: "text-white",
-    barSubText: "text-red-100",
-    barDot: "bg-yellow-300",
-  },
-  highVisAmber: {
-    label: "High-Vis Amber",
-    barBg: "bg-amber-200",
-    barText: "text-zinc-950",
-    barSubText: "text-zinc-900",
-    barDot: "bg-red-700",
-  },
-};
-
 type Copy = {
   barLabel: string;
   kicker: string;
@@ -374,7 +332,7 @@ function ShareRow({ t, variant = "light" }: { t: Copy; variant?: "light" | "dark
   const strokeIcon = dark ? "text-zinc-300" : "text-zinc-600";
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3 mt-4">
       <span className={`text-sm font-bold ${dark ? "text-zinc-300" : "text-zinc-600"}`}>
         <span aria-hidden="true">📣</span> {t.shareCta}
       </span>
@@ -446,11 +404,31 @@ function Unit({ n, l }: { n: number | null; l: string }) {
   );
 }
 
+// The counter's title and digits, extracted from the old sticky top bar.
+// Digits are always LTR so days sit leftmost, regardless of page direction.
+function CountdownBlock({ t, cd }: { t: Copy; cd: ReturnType<typeof useCountdown> }) {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex items-center gap-2">
+        <span className="h-2 w-2 rounded-full bg-red-500 shrink-0" style={{ animation: "pulseDot 1.6s ease-in-out infinite" }} aria-hidden="true" />
+        <span className="text-xs sm:text-sm font-semibold text-zinc-500">{t.barLabel}</span>
+      </div>
+      <div dir="ltr" className="flex items-center gap-3 sm:gap-4 bg-zinc-950 text-white rounded-2xl shadow-lg px-6 py-3">
+        <Unit n={cd.d} l={t.days} />
+        <span className="opacity-30">:</span>
+        <Unit n={cd.h} l={t.hrs} />
+        <span className="opacity-30">:</span>
+        <Unit n={cd.m} l={t.min} />
+        <span className="opacity-30">:</span>
+        <span className="text-red-400"><Unit n={cd.s} l={t.sec} /></span>
+      </div>
+    </div>
+  );
+}
+
 /* ================= APP ================= */
 export default function VoteWhereYouLive() {
   const [locale, setLocale] = useState<LocaleKey>("he");
-  const [themeKey, setThemeKey] = useState<ThemeKey>("classicBlue");
-  const theme = THEMES[themeKey];
   const t = T[locale];
   const { dir, tag } = LOCALES[locale];
   const cd = useCountdown(CONFIG.registryCloseDate);
@@ -481,27 +459,19 @@ export default function VoteWhereYouLive() {
 
   return (
     <div dir={dir} lang={locale} className="min-h-screen bg-white text-zinc-900 antialiased flex-1">
-      {/* ===== COUNTDOWN BAR ===== */}
-      <div className={`sticky top-0 z-30 ${theme.barBg} ${theme.barText}`} role="timer" aria-live="off">
-        <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className={`h-2 w-2 rounded-full shrink-0 ${theme.barDot}`} style={{ animation: "pulseDot 1.6s ease-in-out infinite" }} aria-hidden="true" />
-            <span className={`text-xs sm:text-sm font-semibold truncate ${theme.barSubText}`}>{t.barLabel}</span>
-          </div>
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0 bg-white text-zinc-900 rounded-lg shadow-sm px-3 py-1.5">
-            <Unit n={cd.d} l={t.days} />
-            <span className="opacity-30">:</span>
-            <Unit n={cd.h} l={t.hrs} />
-            <span className="opacity-30">:</span>
-            <Unit n={cd.m} l={t.min} />
-            <span className="opacity-30">:</span>
-            <span className="text-red-600"><Unit n={cd.s} l={t.sec} /></span>
-          </div>
+      {/* ===== LANGUAGE ===== */}
+      <div className="max-w-5xl mx-auto px-4 pt-3 flex justify-end">
+        <div className="relative">
+          <svg viewBox="0 0 24 24" className="pointer-events-none absolute top-1/2 -translate-y-1/2 start-2.5 h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
           <select
             value={locale}
             onChange={(e) => handleLocaleChange(e.target.value as LocaleKey)}
             aria-label="Language"
-            className="bg-white text-zinc-900 rounded-full border border-zinc-200 shadow-sm px-3 py-1.5 text-xs sm:text-sm font-semibold shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="bg-white text-zinc-700 rounded-full border border-zinc-200 shadow-sm ps-8 pe-3 py-1.5 text-xs sm:text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             {Object.entries(LOCALES).map(([k, v]) => (
               <option key={k} value={k}>
@@ -514,7 +484,8 @@ export default function VoteWhereYouLive() {
 
       {/* ===== HERO ===== */}
       <main>
-        <section className="max-w-3xl mx-auto px-5 pt-6 sm:pt-8 pb-14 text-center flex flex-col items-center gap-6">
+        <section className="max-w-3xl mx-auto px-5 pt-2 sm:pt-4 pb-14 text-center flex flex-col items-center gap-6">
+          <CountdownBlock t={t} cd={cd} />
           <p
             className="text-xs sm:text-sm font-bold tracking-widest uppercase text-blue-700 border border-blue-700 rounded px-2.5 py-1"
           >
@@ -615,21 +586,6 @@ export default function VoteWhereYouLive() {
           <p className="text-xs text-zinc-600">⚖️ {t.honesty}</p>
         </div>
       </footer>
-
-      {/* ===== DESIGN TOGGLE (review only) ===== */}
-      <div className="fixed bottom-4 end-4 z-40 flex flex-col gap-1.5 rounded-xl bg-white/95 backdrop-blur border border-zinc-200 shadow-xl p-2" dir="ltr">
-        <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-400 px-1">Design</span>
-        {Object.entries(THEMES).map(([k, v]) => (
-          <button
-            key={k}
-            onClick={() => setThemeKey(k as ThemeKey)}
-            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors ${themeKey === k ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100"}`}
-          >
-            <span className={`h-3 w-3 rounded-full ${v.barBg} border border-zinc-300`} aria-hidden="true" />
-            {v.label}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
